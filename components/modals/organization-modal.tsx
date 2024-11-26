@@ -1,7 +1,6 @@
 "use client";
 
 import * as z from "zod";
-import axios from "axios";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -27,8 +26,7 @@ import {
 
 import ImageUpload from "@/components/image-upload";
 import { useModal } from "@/hooks/use-modal-store";
-import { envConfig } from "../../config/env";
-import { createAgent } from "@/lib/endpoints";
+import { createAgent, getUser } from "@/lib/endpoints";
 
 const formSchema = z.object({
   name: z.string().min(1, {
@@ -69,15 +67,20 @@ const OrganizationModal = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      if (organization.isLoaded) {
-        const orgId = organization?.createOrganization({ name: values.name });
-        createAgent({ ...values, orgId });
-        form.reset();
-        router.refresh();
-        handleClose();
-      }
-    } catch (error) {
-      console.log(error);
+      console.log("before");
+      await getUser()
+      await createAgent(values);
+      if (organization.isLoaded)
+        await organization?.createOrganization({ name: values.name });
+      // console.log("after");
+      form.reset();
+      router.refresh();
+      handleClose();
+
+      // console.log(organization.isLoaded)
+    } catch (error: any) {
+      console.log(error.message);
+      console.log(error.response);
     }
   };
 
@@ -89,8 +92,8 @@ const OrganizationModal = () => {
             Become An Agent
           </DialogTitle>
           <DialogDescription className="text-xs sm:text-sm text-center text-muted-foreground">
-            Give your oranization a name and an image. You can
-            always change it later
+            Give your oranization a name and an image. You can always change it
+            later
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>

@@ -18,7 +18,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-import ButtonPrimary from "@/components/button-primary";
+import MultiImageUpload from "@/components/multi-image-upload";
 
 const formSchema = z.object({
   name: z.string().min(1, {
@@ -73,7 +73,7 @@ const Page = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <ImageUpload
+                    <MultiImageUpload
                       value={field.value}
                       onChange={field.onChange}
                     />

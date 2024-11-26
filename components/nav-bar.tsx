@@ -30,7 +30,7 @@ const Navbar = () => {
         <div className="flex flex-1 mx-6 max-sm:mx-2 justify-start items-center w-full">
           <Link
             onClick={() => isSignedIn && onOpen("becomeAgent")}
-            href={!isSignedIn ? "/auth/sign-in" : "/"}
+            href={!isSignedIn ? "/auth/sign-in" : "/dashboard"}
             className={cn(
               "text-neutral-500 group py-2 transition-all px-4 rounded-lg  font-medium text-sm  delay-150 ease-in-out text-center"
             )}

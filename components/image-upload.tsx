@@ -34,6 +34,7 @@ const ImageUpload = ({ value, onChange }: ImageUploadProps) => {
   return (
     <UploadDropzone
       endpoint="imageUploader"
+      
       appearance={{ container: { height: "180px" },button: {
         accentColor: "black",
         backgroundColor: "black",

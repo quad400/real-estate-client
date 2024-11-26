@@ -3,14 +3,14 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 const isProtectedRoute = createRouteMatcher(["/dashboard(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
-  if (isProtectedRoute(req)) {
-    await auth.protect((has) => {
-      return (
-        has({ permission: "org:sys_memberships:manage" }) ||
-        has({ permission: "org:sys_domains_manage" })
-      );
-    });
-  }
+  // if (isProtectedRoute(req)) {
+  //   await auth.protect((has) => {
+  //     return (
+  //       has({ permission: "org:sys_memberships:manage" }) ||
+  //       has({ permission: "org:sys_domains_manage" })
+  //     );
+  //   });
+  // }
 });
 
 export const config = {

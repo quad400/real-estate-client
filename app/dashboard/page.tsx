@@ -18,7 +18,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import Link from "next/link";
-import { useProducts } from "@/hooks/use-product";
+import { useEstates } from "@/hooks/use-estate";
 import { Naira } from "@/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -27,23 +27,23 @@ const Page = () => {
   const {
     hasNextPage,
     hasPrevPage,
-    deleteProduct,
+    deleteEstate,
     loading,
     loadNext,
     loadPrev,
-    products,
+    estates,
     isDeleting,
-  } = useProducts();
+  } = useEstates();
 
   function handleDelete(productId: string) {
-    deleteProduct(productId);
+    deleteEstate(productId);
   }
 
   return (
     <div className="w-full container">
       <div className="flex justify-end w-full items-start -mt-10">
         <Link
-          href="/admin/product/create"
+          href="/dashboard/estate/create"
           className="bg-primary-light/10 shadow-md text-center text-sm px-4 py-3 text-primary-dark hover:bg-white/90 flex rounded-xl space-x-2 transition-all"
         >
           <Plus className="text-primary-dark h-4 w-4" />
@@ -53,8 +53,8 @@ const Page = () => {
       <Table className="w-full border-collapse mt-2 mb-5 border rounded-2xl">
         <TableHeader className="bg-neutral-200 w-full rounded-t-3xl">
           <TableRow>
-            <TableHead className="">Product(s)</TableHead>
-            <TableHead className="">Size</TableHead>
+            <TableHead className="">Estate(s)</TableHead>
+            <TableHead className=""></TableHead>
             <TableHead className="">Price</TableHead>
             <TableHead className=""></TableHead>
             <TableHead className=""></TableHead>
@@ -62,7 +62,7 @@ const Page = () => {
         </TableHeader>
         <TableBody>
           {!loading &&
-            products.map((item) => (
+            estates.map((item) => (
               <TableRow key={item._id}>
                 <TableCell>
                   <Link
@@ -70,19 +70,19 @@ const Page = () => {
                     className="flex flex-col md:flex-row justify-start space-x-1 items-start flex-1"
                   >
                     <Image
-                      src={item.image}
-                      alt={item.name}
+                      src={item.images[0]}
+                      alt={item.title}
                       height={60}
                       width={60}
                       className="rounded-2xl object-cover aspect-square"
                     />
 
                     <h3 className="text-primary-dark uppercase text-xs sm:text-sm  font-semibold">
-                      {item.name}
+                      {item.title}
                     </h3>
                   </Link>
                 </TableCell>
-                <TableCell>{item.size}</TableCell>
+                {/* <TableCell>{item.price}</TableCell> */}
                 <TableCell>{Naira.format(item.price)}</TableCell>
                 <TableCell>
                   <Link
@@ -128,25 +128,25 @@ const Page = () => {
         </TableBody>
       </Table>
 
-      {products.length > 0 && (
+      {estates.length > 0 && (
         <div className="mt-4 mb-8 w-full justify-center items-center flex">
           <Pagination>
             <PaginationContent className="max-w-2xl flex justify-between items-center space-x-8">
               <PaginationItem>
-                <PaginationPrevious
+                {/* <PaginationPrevious
                   onClick={loadPrev}
                   disabled={!hasPrevPage}
-                />
+                /> */}
               </PaginationItem>
               <PaginationItem>
-                <PaginationNext onClick={loadNext} disabled={!hasNextPage} />
+                {/* <PaginationNext onClick={loadNext} disabled={!hasNextPage} /> */}
               </PaginationItem>
             </PaginationContent>
           </Pagination>
         </div>
       )}
 
-      {products.length === 0 && (
+      {estates.length === 0 && (
         <div className="flex w-full justify-center items-center mt-8">
           <p className="text-base sm:text-lg font-semibold text-neutral-800 text-center">
             No product in this dashboard
