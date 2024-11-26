@@ -2,20 +2,18 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import qs from "query-string";
 import { IEstate } from "@/lib/interfaces/estate";
-import { deleteMethod, get } from "@/lib/endpoints";
+import { get } from "@/lib/endpoints";
 
-export const useEstates = (estateId?: string) => {
-  const [estate, setEstate] = useState<IEstate | null>(null);
+export const useEstatesPages = (estateId?: string) => {
   const [estates, setEstates] = useState<IEstate[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(false);
-  const [isDeleting, setIsDeleting] = useState(false);
 
   const getEstates = async (page: number) => {
     console.log(page);
     const url = qs.stringifyUrl({
-      url: `estates/user/my-estates`,
+      url: `estates`,
       query: {
         page: page,
       },
@@ -24,7 +22,6 @@ export const useEstates = (estateId?: string) => {
     try {
       setLoading(true);
       const res = await get(url);
-      console.log(res)
       setTotalPages(res.data.totalPages);
       setCurrentPage(res.data.currentPage);
       setEstates(res.data.items);
@@ -64,8 +61,7 @@ export const useEstates = (estateId?: string) => {
     try {
       setLoading(true);
       const res = await get(`estates/${estateId}`);
-      console.log(res);
-      setEstate(res.data);
+      return res.data;
     } catch (error: any) {
       toast.error("Error Fetching Product");
     } finally {
@@ -73,35 +69,14 @@ export const useEstates = (estateId?: string) => {
     }
   };
 
-  const deleteEstate = async (estateId: string) => {
-    try {
-      setIsDeleting(true);
-      await deleteMethod(`estates/${estateId}`);
-      await getEstates(currentPage);
-      toast.success("Estate deleted sucessfully");
-    } catch (error: any) {
-      toast.error("Error Deleting Estate");
-    } finally {
-      setIsDeleting(false);
-    }
-  };
-
-  useEffect(() => {
-    if (estateId) {
-      getEstate(estateId);
-    }
-  }, [estateId]);
-
   return {
     estates,
     setEstates,
     loadNext,
     loadPrev,
     loading,
+    getEstate,
     hasNextPage,
-    hasPrevPage,
-    estate,
-    isDeleting,
-    deleteEstate,
+    hasPrevPage
   };
 };

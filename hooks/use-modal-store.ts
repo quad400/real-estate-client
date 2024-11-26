@@ -4,10 +4,8 @@ export type ModalType =
   "becomeAgent"| "feedback"
 
 interface ModalData {
-  data: any
+  data?: any
 }
-
-
 
 interface ModalStore {
   type: ModalType | null;

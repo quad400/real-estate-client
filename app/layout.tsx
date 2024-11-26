@@ -7,6 +7,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import Navbar from "@/components/nav-bar";
 import Footer from "@/components/footer";
 import { ModalProvider } from "@/components/providers/ModalProvider";
+import { Toaster } from "sonner";
 
 export const poppins = Poppins({
   subsets: ["latin"],
@@ -32,6 +33,7 @@ export default function RootLayout({
         <ModalProvider />
         <main className="w-full min-h-screen">{children}</main>
         <Footer />
+        <Toaster />
       </body>
     </html>
     </ClerkProvider>

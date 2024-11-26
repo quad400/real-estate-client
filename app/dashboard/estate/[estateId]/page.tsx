@@ -5,15 +5,13 @@ import React from "react";
 import { Naira } from "../../../../utils";
 import Link from "next/link";
 import { Edit } from "lucide-react";
-import { useProducts } from "@/hooks/use-product";
+import { useEstates } from "@/hooks/use-estate";
 import { Skeleton } from "@/components/ui/skeleton";
 
+const Page = ({ params }: { params: { estateId: string } }) => {
+  const { estate, loading } = useEstates(params.estateId);
 
-
-const Page = ({ params }: { params: { productId: string } }) => {
-  const { product, loading } = useProducts(params.productId);
-
-  if (!product && loading) {
+  if (!estate && loading) {
     return (
       <div className="w-full">
         <div className="flex container flex-col justify-start space-y-2 items-start">
@@ -29,7 +27,7 @@ const Page = ({ params }: { params: { productId: string } }) => {
     );
   }
 
-  if (!product) {
+  if (!estate) {
     return null;
   }
 
@@ -37,7 +35,7 @@ const Page = ({ params }: { params: { productId: string } }) => {
     <div className="flex flex-col space-y-3 justify-start items-start container">
       <div className="flex justify-end w-full items-start -mt-8">
         <Link
-          href={`/admin/product/${product._id}/edit`}
+          href={`/dashboard/estate/${estate._id}/edit`}
           className="bg-primary-light/10 shadow-md text-center space-x-2 px-4 py-3 text-primary-dark hover:bg-white/90 flex rounded-xl font-medium transition-all"
         >
           <Edit className="text-primary-dark h-4 w-4" />
@@ -46,25 +44,26 @@ const Page = ({ params }: { params: { productId: string } }) => {
           </p>
         </Link>
       </div>
-      <div className="relative w-[200px] h-[200px]">
-        <Image
-          src={product.image}
-          alt="Product"
-          fill
-          className="object-cover"
-        />
+      <div className="flex flex-wrap gap-4 justify-start items-center">
+        {estate.images.map((image, index) => (
+          <div key={index} className="relative w-[200px] h-[200px]">
+            <Image src={image} alt="Product" fill className="object-cover" />
+          </div>
+        ))}
       </div>
       <div className="flex flex-col justify-start items-start">
-        <h2 className="text-xl font-bold text-neutral-800">{product.name}</h2>
+        <h2 className="text-xl font-bold text-neutral-800">{estate.title}</h2>
       </div>
-      <div className="flex space-x-3 justify-start items-start">
-        <p className="text-neutral-800 font-normal text-sm">{product.size}</p>
+      <div className="flex space-x-3 justify-start items-start flex-wrap">
         <p className="text-neutral-800 font-normal text-sm">
-          {Naira.format(product.price)}
+          {estate.location}
+        </p>
+        <p className="text-neutral-800 font-normal text-sm">
+          {Naira.format(estate.price)}
         </p>
       </div>
       <p className="text-sm font-normal text-neutral-700 max-w-2xl">
-        {product.details}
+        {estate.details}
       </p>
     </div>
   );

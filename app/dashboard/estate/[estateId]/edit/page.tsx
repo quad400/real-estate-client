@@ -1,8 +1,6 @@
 "use client";
 
-import ImageUpload from "@/components/image-upload";
 import * as z from "zod";
-import axios from "axios";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,18 +16,24 @@ import {
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { useEffect } from "react";
-import { useProducts } from "@/hooks/use-product";
+import { useEstates } from "@/hooks/use-estate";
 import { toast } from "sonner";
+import { patch } from "@/lib/endpoints";
+import MultiImageUpload from "@/components/multi-image-upload";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const formSchema = z.object({
-  name: z.string().min(1, {
-    message: "Product Name is required",
+  title: z.string().min(1, {
+    message: "Title is required",
   }),
-  image: z.string().min(1, {
-    message: "Product Image is required",
+  images: z.array(z.string()).min(1, {
+    message: "At least one image is required", // Custom error message for empty array
   }),
-  size: z.string().min(1, {
-    message: "Product Size is required",
+  location: z.string().min(1, {
+    message: "Location is required",
+  }),
+  category: z.string().min(1, {
+    message: "Category is required",
   }),
   price: z.string().min(1, {
     message: "Product Price is required",
@@ -37,16 +41,17 @@ const formSchema = z.object({
   details: z.string(),
 });
 
-const Page = ({ params }: { params: { productId: string } }) => {
+const Page = ({ params }: { params: { estateId: string } }) => {
   const router = useRouter();
-  const { loading, product } = useProducts(params.productId);
+  const { loading, estate } = useEstates(params.estateId);
 
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      image: "",
-      size: "",
+      title: "",
+      images: [],
+      location: "",
+      category: "",
       price: "",
       details: "",
     },
@@ -54,19 +59,21 @@ const Page = ({ params }: { params: { productId: string } }) => {
   const isLoading = form.formState.isSubmitting;
 
   useEffect(() => {
-    if (product) {
-      form.setValue("name", product.name);
-      form.setValue("image", product.image);
-      form.setValue("size", product.size);
-      form.setValue("price", product.price.toString());
-      form.setValue("details", product.details || "");
+    if (estate) {
+      form.setValue("title", estate.title);
+      // @ts-ignore
+      form.setValue("images", estate.images);
+      form.setValue("location", estate.location);
+      form.setValue("category", estate.category);
+      form.setValue("price", estate.price.toString());
+      form.setValue("details", estate.details || "");
     }
-  }, [product]);
+  }, [estate]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(`/api/products/${params.productId}`, values);
-      toast.success("Product updated successfully");
+      await patch(`/estates/${params.estateId}`, values);
+      toast.success("Estate updated successfully");
       router.refresh();
     } catch (error) {
       toast.error("Failed to update product");
@@ -76,50 +83,93 @@ const Page = ({ params }: { params: { productId: string } }) => {
 
   return (
     <div className="w-full h-full container mb-6">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <div className="flex flex-col justify-start items-start max-w-2xl">
-            <FormField
-              control={form.control}
-              name="image"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <ImageUpload
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className=" flex flex-col space-y-4 mt-4 w-full">
-              <div className="w-full">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input
-                          disabled={isLoading}
-                          {...field}
-                          type="text"
-                          placeholder="Product Name"
-                          className="w-full text-sm shadow-none"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="w-full gap-4 flex justify-start items-center">
+      {estate && !loading && (
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <div className="flex flex-col justify-start items-start max-w-2xl">
+              <FormField
+                control={form.control}
+                name="images"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <MultiImageUpload
+                        values={field.value as string[]}
+                        onChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className=" flex flex-col space-y-4 mt-4 w-full">
                 <div className="w-full">
                   <FormField
                     control={form.control}
-                    name="size"
+                    name="title"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            disabled={isLoading}
+                            {...field}
+                            type="text"
+                            placeholder="Product Name"
+                            className="w-full text-sm shadow-none"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="w-full gap-4 flex justify-start items-center">
+                  <div className="w-full">
+                    <FormField
+                      control={form.control}
+                      name="category"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              disabled={isLoading}
+                              type="text"
+                              placeholder="Category"
+                              className="w-full text-sm shadow-none"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="w-full">
+                    <FormField
+                      control={form.control}
+                      name="price"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input
+                              disabled={isLoading}
+                              {...field}
+                              value={Number(field.value)}
+                              type="number"
+                              placeholder="Price"
+                              className="w-full text-sm shadow-none"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+                <div className="w-full">
+                  <FormField
+                    control={form.control}
+                    name="location"
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
@@ -127,7 +177,7 @@ const Page = ({ params }: { params: { productId: string } }) => {
                             {...field}
                             disabled={isLoading}
                             type="text"
-                            placeholder="Size"
+                            placeholder="Location"
                             className="w-full text-sm shadow-none"
                           />
                         </FormControl>
@@ -139,17 +189,15 @@ const Page = ({ params }: { params: { productId: string } }) => {
                 <div className="w-full">
                   <FormField
                     control={form.control}
-                    name="price"
+                    name="details"
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <Input
-                            disabled={isLoading}
+                          <Textarea
                             {...field}
-                             value={Number(field.value)}
-                            type="number"
-                            placeholder="Price"
-                            className="w-full text-sm shadow-none"
+                            disabled={isLoading}
+                            placeholder="Product Details"
+                            className="w-full min-h-[150px] text-sm shadow-none"
                           />
                         </FormControl>
                         <FormMessage />
@@ -158,37 +206,28 @@ const Page = ({ params }: { params: { productId: string } }) => {
                   />
                 </div>
               </div>
-              <div className="w-full">
-                <FormField
-                  control={form.control}
-                  name="details"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Textarea
-                          {...field}
-                          disabled={isLoading}
-                          placeholder="Product Details"
-                          className="w-full min-h-[150px] text-sm shadow-none"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
             </div>
+            <div className="flex sm:justify-end sm:items-end w-full sm:w-auto my-6">
+              <Button size="lg" className="w-full sm:w-auto">
+                Update
+              </Button>
+            </div>
+          </form>
+        </Form>
+      )}
+      {loading && !estate && (
+        <div className="w-full">
+          <div className="flex container flex-col justify-start space-y-2 items-start">
+            <Skeleton className="h-[200px] w-[200px]" />
+            <Skeleton className="h-[50px] w-[300px]" />
+            <div className="flex space-x-4 items-center justify-between">
+              <Skeleton className="h-[50px] w-[150px]" />
+              <Skeleton className="h-[50px] w-[150px]" />
+            </div>
+            <Skeleton className="h-[150px] w-[300px]" />
           </div>
-          <div className="flex sm:justify-end sm:items-end w-full sm:w-auto my-6">
-            <Button
-              size="lg"
-              className="bg-primary-dark hover:bg-primary-dark/90 rounded-xl w-full sm:w-auto"
-            >
-              Update
-            </Button>
-          </div>
-        </form>
-      </Form>
+        </div>
+      )}
     </div>
   );
 };

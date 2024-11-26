@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import OrganizationModal from "../modals/organization-modal"
+import FeedbackModal from "../modals/feedback-modal"
 
 
 export const ModalProvider = ()=> {
@@ -16,6 +17,7 @@ export const ModalProvider = ()=> {
     return (
         <>
             <OrganizationModal />
+            <FeedbackModal />
         </>
     )
 }

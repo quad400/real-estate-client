@@ -21,7 +21,6 @@ import Link from "next/link";
 import { useEstates } from "@/hooks/use-estate";
 import { Naira } from "@/utils";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
 
 const Page = () => {
   const {
@@ -35,8 +34,8 @@ const Page = () => {
     isDeleting,
   } = useEstates();
 
-  function handleDelete(productId: string) {
-    deleteEstate(productId);
+  function handleDelete(estateId: string) {
+    deleteEstate(estateId);
   }
 
   return (
@@ -47,7 +46,9 @@ const Page = () => {
           className="bg-primary-light/10 shadow-md text-center text-sm px-4 py-3 text-primary-dark hover:bg-white/90 flex rounded-xl space-x-2 transition-all"
         >
           <Plus className="text-primary-dark h-4 w-4" />
-          <p className="text-primary-dark font-medium text-sm">Add Product</p>
+          <p className="text-primary-dark font-medium text-sm max-sm:hidden">
+            Add Estate
+          </p>
         </Link>
       </div>
       <Table className="w-full border-collapse mt-2 mb-5 border rounded-2xl">
@@ -66,7 +67,7 @@ const Page = () => {
               <TableRow key={item._id}>
                 <TableCell>
                   <Link
-                    href={`/admin/product/${item._id}`}
+                    href={`/dashboard/estate/${item._id}`}
                     className="flex flex-col md:flex-row justify-start space-x-1 items-start flex-1"
                   >
                     <Image
@@ -86,7 +87,7 @@ const Page = () => {
                 <TableCell>{Naira.format(item.price)}</TableCell>
                 <TableCell>
                   <Link
-                    href={`/admin/product/${item._id}/edit`}
+                    href={`/dashboard/estate/${item._id}/edit`}
                     className="bg-primary h-8 w-8 rounded-full flex justify-center items-center"
                   >
                     <Edit className="text-white h-4 w-4" />
@@ -133,23 +134,23 @@ const Page = () => {
           <Pagination>
             <PaginationContent className="max-w-2xl flex justify-between items-center space-x-8">
               <PaginationItem>
-                {/* <PaginationPrevious
+                <PaginationPrevious
                   onClick={loadPrev}
                   disabled={!hasPrevPage}
-                /> */}
+                />
               </PaginationItem>
               <PaginationItem>
-                {/* <PaginationNext onClick={loadNext} disabled={!hasNextPage} /> */}
+                <PaginationNext onClick={loadNext} disabled={!hasNextPage} />
               </PaginationItem>
             </PaginationContent>
           </Pagination>
         </div>
       )}
 
-      {estates.length === 0 && (
+      {estates.length === 0 && !loading && (
         <div className="flex w-full justify-center items-center mt-8">
           <p className="text-base sm:text-lg font-semibold text-neutral-800 text-center">
-            No product in this dashboard
+            Agent have not uploaded any estate yet
           </p>
         </div>
       )}

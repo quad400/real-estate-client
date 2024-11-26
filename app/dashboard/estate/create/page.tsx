@@ -1,12 +1,10 @@
 "use client";
 
-import ImageUpload from "@/components/image-upload";
 import * as z from "zod";
-import axios from "axios";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner"
+import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,21 +12,24 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import MultiImageUpload from "@/components/multi-image-upload";
+import { post } from "@/lib/endpoints";
 
 const formSchema = z.object({
-  name: z.string().min(1, {
-    message: "Product Name is required",
+  title: z.string().min(1, {
+    message: "Title is required",
   }),
-  image: z.string().min(1, {
-    message: "Product Image is required",
+  images: z.array(z.string()).min(1, {
+    message: "At least one image is required",
   }),
-  size: z.string().min(1, {
-    message: "Product Size is required",
+  location: z.string().min(1, {
+    message: "Location is required",
+  }),
+  category: z.string().min(1, {
+    message: "Category is required",
   }),
   price: z.string().min(1, {
     message: "Product Price is required",
@@ -42,9 +43,10 @@ const Page = () => {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      image: "",
-      size: "",
+      title: "",
+      images: [],
+      location: "",
+      category: "",
       price: "",
       details: "",
     },
@@ -53,12 +55,14 @@ const Page = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.post("/api/products", values);
-      toast.success("Product created successfully")
+      await post("/estates", values);
       router.refresh();
-      form.reset()
+      form.reset();
+      toast.success("Estate created successfully");
+      form.setValue("images", []);
     } catch (error: any) {
-      toast.error(error.response.data)
+      console.log(error);
+      toast.error("Failed to create estate");
     }
   };
 
@@ -69,13 +73,13 @@ const Page = () => {
           <div className="flex flex-col justify-start items-start max-w-2xl">
             <FormField
               control={form.control}
-              name="image"
+              name="images"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
                     <MultiImageUpload
-                      value={field.value}
                       onChange={field.onChange}
+                      values={field.value as string[]}
                     />
                   </FormControl>
                   <FormMessage />
@@ -86,7 +90,7 @@ const Page = () => {
               <div className="w-full">
                 <FormField
                   control={form.control}
-                  name="name"
+                  name="title"
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
@@ -94,7 +98,7 @@ const Page = () => {
                           disabled={isLoading}
                           {...field}
                           type="text"
-                          placeholder="Product Name"
+                          placeholder="Estate Title"
                           className="w-full text-sm shadow-none"
                         />
                       </FormControl>
@@ -107,7 +111,7 @@ const Page = () => {
                 <div className="w-full">
                   <FormField
                     control={form.control}
-                    name="size"
+                    name="category"
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
@@ -115,7 +119,7 @@ const Page = () => {
                             {...field}
                             disabled={isLoading}
                             type="text"
-                            placeholder="Size"
+                            placeholder="Estate Category"
                             className="w-full text-sm shadow-none"
                           />
                         </FormControl>
@@ -135,7 +139,7 @@ const Page = () => {
                             disabled={isLoading}
                             {...field}
                             type="number"
-                            placeholder="Price"
+                            placeholder="Estate Price"
                             className="w-full text-sm shadow-none"
                           />
                         </FormControl>
@@ -148,6 +152,26 @@ const Page = () => {
               <div className="w-full">
                 <FormField
                   control={form.control}
+                  name="location"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          disabled={isLoading}
+                          type="text"
+                          placeholder="Estate Location"
+                          className="w-full text-sm shadow-none"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="w-full">
+                <FormField
+                  control={form.control}
                   name="details"
                   render={({ field }) => (
                     <FormItem>
@@ -155,7 +179,7 @@ const Page = () => {
                         <Textarea
                           {...field}
                           disabled={isLoading}
-                          placeholder="Product Details"
+                          placeholder="Estate Details"
                           className="w-full min-h-[150px] text-sm shadow-none"
                         />
                       </FormControl>
@@ -167,10 +191,7 @@ const Page = () => {
             </div>
           </div>
           <div className="flex sm:justify-end sm:items-end w-full sm:w-auto my-6">
-            <Button
-              size="lg"
-              className="bg-primary-dark hover:bg-primary-dark/90 rounded-xl w-full sm:w-auto"
-            >
+            <Button size="lg" className="w-full sm:w-auto">
               Submit
             </Button>
           </div>

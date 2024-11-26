@@ -1,8 +1,14 @@
-import * as React from "react"
-import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react"
+import * as React from "react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+  MoreHorizontal,
+} from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { ButtonProps, buttonVariants } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import { ButtonProps, buttonVariants } from "@/components/ui/button";
 
 const Pagination = ({ className, ...props }: React.ComponentProps<"nav">) => (
   <nav
@@ -11,8 +17,8 @@ const Pagination = ({ className, ...props }: React.ComponentProps<"nav">) => (
     className={cn("mx-auto flex w-full justify-center", className)}
     {...props}
   />
-)
-Pagination.displayName = "Pagination"
+);
+Pagination.displayName = "Pagination";
 
 const PaginationContent = React.forwardRef<
   HTMLUListElement,
@@ -23,21 +29,21 @@ const PaginationContent = React.forwardRef<
     className={cn("flex flex-row items-center gap-1", className)}
     {...props}
   />
-))
-PaginationContent.displayName = "PaginationContent"
+));
+PaginationContent.displayName = "PaginationContent";
 
 const PaginationItem = React.forwardRef<
   HTMLLIElement,
   React.ComponentProps<"li">
 >(({ className, ...props }, ref) => (
   <li ref={ref} className={cn("", className)} {...props} />
-))
-PaginationItem.displayName = "PaginationItem"
+));
+PaginationItem.displayName = "PaginationItem";
 
 type PaginationLinkProps = {
-  isActive?: boolean
+  isActive?: boolean;
 } & Pick<ButtonProps, "size"> &
-  React.ComponentProps<"a">
+  React.ComponentProps<"a">;
 
 const PaginationLink = ({
   className,
@@ -52,44 +58,49 @@ const PaginationLink = ({
         variant: isActive ? "outline" : "ghost",
         size,
       }),
+      "cursor-pointer",
       className
     )}
     {...props}
   />
-)
-PaginationLink.displayName = "PaginationLink"
+);
+PaginationLink.displayName = "PaginationLink";
 
-const PaginationPrevious = ({
-  className,
-  ...props
-}: React.ComponentProps<typeof PaginationLink>) => (
-  <PaginationLink
+const PaginationPrevious = ({ className, disabled, onClick, ...props }: any) => (
+  <button
     aria-label="Go to previous page"
-    size="default"
-    className={cn("gap-1 pl-2.5", className)}
-    {...props}
+    className={cn(
+      "bg-neutral-800 h-10 w-10 shadow flex rounded-full justify-center items-center",
+      disabled && "bg-neutral-200"
+    )}
+    disabled={disabled}
+    onClick={onClick}
+    type="button"
   >
-    <ChevronLeft className="h-4 w-4" />
-    <span>Previous</span>
-  </PaginationLink>
-)
-PaginationPrevious.displayName = "PaginationPrevious"
+    <ArrowLeft
+      className={cn("text-white h-5 w-5", disabled && "text-neutral-800")}
+    />
+  </button>
+);
 
-const PaginationNext = ({
-  className,
-  ...props
-}: React.ComponentProps<typeof PaginationLink>) => (
-  <PaginationLink
+const PaginationNext = ({ className, disabled, onClick, ...props }: any) => (
+  <button
     aria-label="Go to next page"
-    size="default"
-    className={cn("gap-1 pr-2.5", className)}
-    {...props}
+    className={cn(
+      "bg-neutral-800 h-10 shadow w-10 flex rounded-full justify-center items-center",
+      disabled && "bg-neutral-200"
+    )}
+    disabled={disabled}
+    onClick={onClick}
+    type="button"
   >
-    <span>Next</span>
-    <ChevronRight className="h-4 w-4" />
-  </PaginationLink>
-)
-PaginationNext.displayName = "PaginationNext"
+    <ArrowRight
+      className={cn("text-white h-5 w-5", disabled && "text-neutral-800")}
+    />
+  </button>
+);
+
+PaginationNext.displayName = "PaginationNext";
 
 const PaginationEllipsis = ({
   className,
@@ -103,8 +114,8 @@ const PaginationEllipsis = ({
     <MoreHorizontal className="h-4 w-4" />
     <span className="sr-only">More pages</span>
   </span>
-)
-PaginationEllipsis.displayName = "PaginationEllipsis"
+);
+PaginationEllipsis.displayName = "PaginationEllipsis";
 
 export {
   Pagination,
@@ -114,4 +125,4 @@ export {
   PaginationPrevious,
   PaginationNext,
   PaginationEllipsis,
-}
+};

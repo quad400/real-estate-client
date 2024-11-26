@@ -7,6 +7,7 @@ export const createUser = async (user: IUser) => {
   try {
     await connect();
     console.log(user);
+    await User.findOneAndDelete({ email: user.email });
     const createdDocument = await User.create({
       _id: uuidV4(),
       email: user.email,
