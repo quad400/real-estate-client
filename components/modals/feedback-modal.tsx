@@ -22,12 +22,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Rating } from "@smastrom/react-rating";
-
 import { useModal } from "@/hooks/use-modal-store";
 import { post } from "@/lib/endpoints";
 import { Textarea } from "../ui/textarea";
 import { toast } from "sonner";
 import { useFeedbacks } from "@/hooks/use-feedbacks";
+import { useUser } from "@clerk/nextjs";
+import { IFeedbacks } from "@/lib/interfaces/estate";
+import { IUser } from "@/lib/interfaces/user";
 
 const formSchema = z.object({
   rate: z.number().min(1, {
@@ -40,11 +42,10 @@ const formSchema = z.object({
 
 const FeedbackModal = () => {
   const { isOpen, onClose, type, data } = useModal();
-
-  const {newFeedback} = useFeedbacks(data.data)
+  const { newFeedback, feedbacks, setFeedbacks } = useFeedbacks(data?.data); // Assuming data is passed as the estate ID
   const isModalOpen = isOpen && type === "feedback";
-
   const router = useRouter();
+  const { user } = useUser();
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -61,16 +62,25 @@ const FeedbackModal = () => {
     onClose();
   };
 
-
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await newFeedback(data?.data, values)
+      const newFeedbackData = {
+        _id: Math.random(),
+        user: { name: `${user?.firstName} ${user?.lastName}` } as IUser,
+        rate: values.rate,
+        comment: values.comment,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      } as unknown as IFeedbacks;
+
+      setFeedbacks([newFeedbackData, ...feedbacks]);
+
+      await newFeedback(values); // Submit the new feedback to the server
       form.reset();
       handleClose();
-      toast.success("Feedback Added Successfully")
+      toast.success("Feedback Added Successfully");
     } catch (error: any) {
       console.log(error.message);
-      console.log(error.response);
       toast.error("Something went wrong");
     }
   };

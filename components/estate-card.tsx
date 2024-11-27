@@ -18,7 +18,7 @@ const EstateCard = ({ item }: { item: IEstate }) => {
       </div>
 
       <div className="flex flex-col group-hover:bg-neutral-100 transition-all duration-500 ease-in-out justify-start items-start space-y-2 mt-2 px-3 w-full py-2">
-        <h2 className="text-neutral-800 font-semibold text-lg md:text-xl line-clamp-2  tracking-tighter">
+        <h2 className="text-neutral-800 font-semibold text-base md:text-lg line-clamp-2  tracking-tighter">
           {item.title}
         </h2>
         <div className="flex w-full justify-between items-center flex-wrap">

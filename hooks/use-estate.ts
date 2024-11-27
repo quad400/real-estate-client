@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import qs from "query-string";
 import { IEstate } from "@/lib/interfaces/estate";
@@ -12,85 +12,97 @@ export const useEstates = (estateId?: string) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const getEstates = async (page: number) => {
+  // Fetch estates based on the page
+  const getEstates = useCallback(async (page: number) => {
     const url = qs.stringifyUrl({
       url: `estates/user/my-estates`,
       query: {
         page: page,
-        limit: 10
+        limit: 10,
       },
     });
-    
+
     try {
       setLoading(true);
       const res = await get(url);
-      console.log(res)
-      setTotalPages(res.data.totalPages);
-      setCurrentPage(res.data.currentPage);
-      setEstates(res.data.items);
+
+      // Only update state if data has changed
+      if (
+        res.data.currentPage !== currentPage ||
+        res.data.totalPages !== totalPages ||
+        res.data.items !== estates
+      ) {
+        setTotalPages(res.data.totalPages);
+        setCurrentPage(res.data.currentPage);
+        setEstates(res.data.items);
+      }
     } catch (error: any) {
       toast.error(error.response.data);
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, totalPages, estates]); // Use dependencies to avoid unnecessary re-fetch
 
+  // Initial load when hook is mounted (or estates are empty)
   useEffect(() => {
     if (estates.length === 0) {
       getEstates(1);
     }
-  }, [estates.length]);
+  }, [estates.length, getEstates]);
 
-  const loadNext = () => {
+  // Load next page
+  const loadNext = useCallback(() => {
     if (currentPage < totalPages && !loading) {
-      const nextPage = currentPage + 1;
-      setCurrentPage(nextPage);
-      getEstates(nextPage);
+      setCurrentPage(prev => prev + 1);
+      getEstates(currentPage + 1);
     }
-  };
+  }, [currentPage, totalPages, loading, getEstates]);
 
-  const loadPrev = () => {
+  // Load previous page
+  const loadPrev = useCallback(() => {
     if (currentPage > 1 && !loading) {
-      const prevPage = currentPage - 1;
-      setCurrentPage(prevPage);
-      getEstates(prevPage);
+      setCurrentPage(prev => prev - 1);
+      getEstates(currentPage - 1);
     }
-  };
+  }, [currentPage, loading, getEstates]);
 
-  const hasNextPage = currentPage < totalPages;
-  const hasPrevPage = currentPage > 1;
-
-  const getEstate = async (estateId: string) => {
+  // Fetch estate details by ID
+  const getEstate = useCallback(async (estateId: string) => {
     try {
       setLoading(true);
       const res = await get(`estates/${estateId}`);
-      console.log(res);
       setEstate(res.data);
     } catch (error: any) {
-      toast.error("Error Fetching Product");
+      toast.error("Error Fetching Estate");
     } finally {
       setLoading(false);
     }
-  };
+  }, []); // Only run once when needed
 
-  const deleteEstate = async (estateId: string) => {
+  // Delete estate by ID
+  const deleteEstate = useCallback(async (estateId: string) => {
     try {
       setIsDeleting(true);
       await deleteMethod(`estates/${estateId}`);
       await getEstates(currentPage);
-      toast.success("Estate deleted sucessfully");
+      toast.success("Estate deleted successfully");
     } catch (error: any) {
       toast.error("Error Deleting Estate");
     } finally {
       setIsDeleting(false);
     }
-  };
+  }, [currentPage, getEstates]); // Ensure it doesn't trigger unnecessary re-fetch
 
+  // Fetch estate details when `estateId` changes
   useEffect(() => {
     if (estateId) {
       getEstate(estateId);
     }
-  }, [estateId]);
+  }, [estateId, getEstate]);
+
+  // Check if there's a next page or previous page
+  const hasNextPage = currentPage < totalPages;
+  const hasPrevPage = currentPage > 1;
 
   return {
     estates,

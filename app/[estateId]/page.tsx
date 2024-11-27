@@ -26,7 +26,7 @@ const Page = ({ params }: { params: { estateId: string } }) => {
       <Feedback estateId={params.estateId} />
       <div className="mt-4 container">
         <div className="my-3">
-          <h2 className="text-xl md:text-3xl font-semibold text-neutral-800">
+          <h2 className="text-lg md:text-2xl font-semibold text-neutral-800">
             Similar Product
           </h2>
         </div>
