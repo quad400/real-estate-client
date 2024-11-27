@@ -17,8 +17,6 @@ const navItenm = [
 const Navbar = () => {
   const { isSignedIn, isLoaded, orgId } = useAuth();
 
-
-  console.log(orgId)
   const { onOpen } = useModal();
   return (
     <div className="flex shadow justify-center backdrop-filter backdrop-blur-md bg-opacity-60 w-full fixed z-50 bg-white items-center pt-2">

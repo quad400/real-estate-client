@@ -4,8 +4,6 @@ import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useOrganizationList } from "@clerk/nextjs";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -29,6 +27,7 @@ import { useModal } from "@/hooks/use-modal-store";
 import { post } from "@/lib/endpoints";
 import { Textarea } from "../ui/textarea";
 import { toast } from "sonner";
+import { useFeedbacks } from "@/hooks/use-feedbacks";
 
 const formSchema = z.object({
   rate: z.number().min(1, {
@@ -42,6 +41,7 @@ const formSchema = z.object({
 const FeedbackModal = () => {
   const { isOpen, onClose, type, data } = useModal();
 
+  const {newFeedback} = useFeedbacks(data.data)
   const isModalOpen = isOpen && type === "feedback";
 
   const router = useRouter();
@@ -61,11 +61,12 @@ const FeedbackModal = () => {
     onClose();
   };
 
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await post(`/estates/${data?.data}/feedback`, values);
+      await newFeedback(data?.data, values)
       form.reset();
-      router.refresh();
+      // router.refresh();
       handleClose();
     } catch (error: any) {
       console.log(error.message);
@@ -96,9 +97,9 @@ const FeedbackModal = () => {
                     <FormLabel className="uppercase text-xs sm:text-sm font-bold text-muted-foreground">
                       Rate
                     </FormLabel>
-                    <FormControl className="w-full justify-center">
+                    <FormControl>
                       <Rating
-                        style={{ maxWidth: 250 }}
+                        style={{ maxWidth: 250, border: 0 }}
                         value={field.value}
                         onChange={field.onChange}
                       />
@@ -120,7 +121,7 @@ const FeedbackModal = () => {
                         disabled={isLoading}
                         className="bg-neutral-200/50 border-0 text-sm md:text-base focus-visible:ring-0
                          text-neutral-800 focus-visible:ring-offset-0"
-                        placeholder="Enter organization phone Number"
+                        placeholder="Comment"
                         {...field}
                       />
                     </FormControl>

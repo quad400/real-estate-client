@@ -14,22 +14,42 @@ import Autoplay from "embla-carousel-autoplay";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { ArrowDown, Plus, Star } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import Link from "next/link";
 import { useEstatesPages } from "@/hooks/use-estates";
 import { IEstate } from "@/lib/interfaces/estate";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useModal } from "@/hooks/use-modal-store";
+import { useAuth } from "@clerk/nextjs";
+import { dateHandler, Naira } from "@/utils";
+import { useFeedbacks } from "@/hooks/use-feedbacks";
+import EstateCard from "@/components/estate-card";
 
 const Page = ({ params }: { params: { estateId: string } }) => {
   const { getEstate, loading, estates } = useEstatesPages();
   const { onOpen } = useModal();
-  const [estate, setEstate] = React.useState<IEstate | null>(null);
+  const [estate, setEstate] = React.useState<IEstate>();
+  const { isSignedIn } = useAuth();
+
+  const {
+    feedbacks,
+    hasNextPage,
+    hasPrevPage,
+    loadNext,
+    loadPrev,
+    loading: feedbackLoading,
+  } = useFeedbacks(params.estateId);
 
   useEffect(() => {
     (async () => {
       const house = await getEstate(params.estateId);
-      console.log(house);
+      console.log(house)
       setEstate(house);
     })();
   }, [params.estateId]);
@@ -107,12 +127,14 @@ const Page = ({ params }: { params: { estateId: string } }) => {
             <h1 className="text-2xl md:text-3xl font-bold">{estate?.title}</h1>
             <div className="flex justify-between items-center">
               <p className="text-lg font-medium">{estate?.category}</p>
-              <p className="text-2xl md:text-3xl font-bold">{estate?.price}</p>
+              <p className="text-2xl md:text-3xl font-bold">
+                {Naira.format(estate?.price)}
+              </p>
             </div>
             <div className="flex justify-between items-center mt-4">
               <p className="text-lg font-medium">{estate?.location}</p>
               <div className="flex justify-center items-center space-x-1">
-                <span className="text-2xl font-medium text-neutral-800">4</span>
+                <span className="text-2xl font-medium text-neutral-800">{estate.ratings}</span>
                 <Star
                   className="text-[#f2dd1d] h-7 w-7"
                   fill="#f2dd1d"
@@ -122,7 +144,7 @@ const Page = ({ params }: { params: { estateId: string } }) => {
             </div>
             <div className="mt-4">
               <div className="my-3">
-                <h2 className="text-2xl md:text-3xl font-semibold text-neutral-800">
+                <h2 className="text-xl md:text-3xl font-semibold text-neutral-800">
                   Details
                 </h2>
               </div>
@@ -132,7 +154,7 @@ const Page = ({ params }: { params: { estateId: string } }) => {
             </div>
             <div className="mt-4">
               <div className="my-3">
-                <h2 className="text-2xl md:text-3xl font-semibold text-neutral-800">
+                <h2 className="text-xl md:text-3xl font-semibold text-neutral-800">
                   Agent Information
                 </h2>
               </div>
@@ -183,123 +205,127 @@ const Page = ({ params }: { params: { estateId: string } }) => {
       <div className="container mt-8">
         <div className="mt-4">
           <div className="my-3 flex justify-between items-center">
-            <h2 className="text-2xl md:text-3xl font-semibold text-neutral-800">
+            <h2 className="text-xl md:text-3xl font-semibold text-neutral-800">
               Feedbacks
             </h2>
-            <Button
-              onClick={() => onOpen("feedback", { data: params.estateId })}
-              size="icon"
-              variant="ghost"
-              className="md:hidden flex shadow"
+
+            <Link
+              href={!isSignedIn ? "/auth/sign-in" : ""}
+              onClick={() =>
+                isSignedIn && onOpen("feedback", { data: params.estateId })
+              }
+              className="justify-center items-center gap-2 p-2 rounded-lg bg-neutral-50 hover:bg-neutral-100 flex shadow"
             >
+              <span className="text-neutral-800 font-medium text-sm hidden md:flex">
+                New Feedbak
+              </span>
               <Plus className="h-6 w-6 text-neutral-800" />
-            </Button>
-            <Button variant="ghost" className="max-md:hidden flex shadow">
-              <Plus className="h-6 w-6 text-neutral-800" />
-              <span className="text-sm text-neutral-800">New Feedback</span>
-            </Button>
+            </Link>
           </div>
           <div className="flex flex-col space-y-2">
-            {Array.from({ length: 3 }).map((_, index) => (
-              <div
-                key={index}
-                className="flex flex-col space-y-2 bg-neutral-100/30 p-4 rounded-lg"
-              >
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center space-x-2">
-                    <Image
-                      src="/assets/avatar.png"
-                      alt="avatar"
-                      width={50}
-                      height={50}
-                      className="rounded-full"
-                    />
-                    <div className="flex flex-col">
-                      <h3 className="text-lg font-semibold text-neutral-800">
-                        Adediji Abdulquadri
-                      </h3>
-                      <p className="text-sm text-neutral-500">2 days ago</p>
+            {!feedbackLoading &&
+              feedbacks.length > 0 &&
+              feedbacks.map((item, index) => (
+                <div
+                  key={index}
+                  className="flex flex-col space-y-2 bg-neutral-100/30 p-4 rounded-lg"
+                >
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center space-x-2">
+                      <Image
+                        src="https://utfs.io/f/N577hwiKq71cA2WD1YSdZ9UWvDXBNSOCuz3lieE4M7Yykr81"
+                        alt="avatar"
+                        width={50}
+                        height={50}
+                        className="rounded-full"
+                      />
+                      <div className="flex flex-col">
+                        <h3 className="text-sm md:text-lg font-semibold text-neutral-800">
+                          {item.user.name}
+                        </h3>
+                        <p className="text-xs md:text-sm text-neutral-500">
+                          {dateHandler(item.updatedAt)}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Star
+                        className="text-[#f2dd1d] h-5 w-5"
+                        fill="#f2dd1d"
+                        stroke="currentColor"
+                      />
+                      <span className="text-sm font-medium text-neutral-800">
+                        {item.rate}
+                      </span>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Star
-                      className="text-[#f2dd1d] h-5 w-5"
-                      fill="#f2dd1d"
-                      stroke="currentColor"
-                    />
-                    <span className="text-sm font-medium text-neutral-800">
-                      4.5
-                    </span>
-                  </div>
+                  <p className="text-xs md:text-sm text-neutral-800">
+                    {item.comment}
+                  </p>
                 </div>
-                <p className="text-sm text-neutral-800">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Nullam bibendum, metus sit amet aliquam aliquet, purus tortor
-                  dignissim purus, nec mollis nunc turpis ac nisl. Nullam
-                  bibendum, metus sit amet aliquam aliquet, purus tortor
-                  dignissim purus, nec mollis nunc
-                </p>
-              </div>
-            ))}
+              ))}
           </div>
+          {feedbackLoading && (
+            <div className="flex flex-col space-y-2">
+              <div className="flex space-x-2 justify-between items-center">
+                <div className="flex space-x-2 justify-start items-center">
+                  <Skeleton className="h-10 w-10 rounded-full" />
+                  <Skeleton className="h-10 w-40" />
+                </div>
+                <Skeleton className="h-10 w-10" />
+              </div>
+              <Skeleton className="h-20 w-full" />
+            </div>
+          )}
+
+          {feedbacks.length > 0 && (
+            <div className="mt-4 mb-8 w-full justify-center items-center flex">
+              <Pagination>
+                <PaginationContent className="max-w-2xl flex justify-between items-center space-x-8">
+                  <PaginationItem>
+                    <PaginationPrevious
+                      onClick={loadPrev}
+                      disabled={!hasPrevPage}
+                    />
+                  </PaginationItem>
+                  <PaginationItem>
+                    <PaginationNext
+                      onClick={loadNext}
+                      disabled={!hasNextPage}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          )}
         </div>
       </div>
-      <div className="mt-4">
+      <div className="mt-4 container">
         <div className="my-3">
-          <h2 className="text-2xl md:text-3xl font-semibold text-neutral-800">
+          <h2 className="text-xl md:text-3xl font-semibold text-neutral-800">
             Similar Product
           </h2>
+        </div>
+        <div>
+          {loading && estates.length === 0 && (
+            <div className="w-full sm:w-[230px] space-y-2">
+              <Skeleton className="w-full h-[200px]" />
+              <div className="flex flex-col space-y-2">
+                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-8 w-4/5" />
+                <Skeleton className="h-8 w-4/5" />
+              </div>
+            </div>
+          )}
         </div>
         <Carousel className="w-full h-full py-5 flex">
           <CarouselContent className="w-full">
             {estates.map((item, index) => (
               <CarouselItem
                 key={index}
-                className="flex flex-col basis-full h-full pb-4 shadow-lg sm:basis-1/2 md:basis-1/3 lg:basis-1/4 w-full md:flex-row justify-start items-start gap-4"
+                className="flex flex-col h-full pb-4 shadow-lg md:flex-row justify-start items-start gap-4 w-[250px]"
               >
-                <Link
-                  href="/"
-                  className="w-full group bg-white h-full shadow space-y-2"
-                >
-                  <div className="relative w-full h-[200px]">
-                    <Image
-                      src={item.images[0]}
-                      alt={item.title}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-
-                  <div className="flex flex-col group-hover:bg-neutral-100 transition-all duration-500 ease-in-out justify-start items-start space-y-2 mt-2 px-3 w-full py-2">
-                    <h2 className="text-neutral-800 font-semibold text-lg md:text-xl line-clamp-2  tracking-tighter">
-                      {item.title}
-                    </h2>
-                    <div className="flex w-full justify-between items-center flex-wrap">
-                      <h4 className="text-neutral-700 font-medium text-sm md:text-base">
-                        {item.category}
-                      </h4>
-                      <h2 className="text-neutral-700 font-medium text-lg md:text-xl">
-                        {item.price}
-                      </h2>
-                    </div>
-                    <div className="flex w-full justify-between items-center flex-wrap">
-                      <h4 className="text-neutral-700 font-medium text-sm md:text-base">
-                        {item.location}
-                      </h4>
-                      <div className="flex space-x-1 justify-center items-center">
-                        <span className="text-sm text-neutral-800 font-medium">
-                          4
-                        </span>
-
-                        <Star
-                          className="text-[#f2dd1d]"
-                          fill="#f2dd1d"
-                          stroke="currentColor"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </Link>
+                <EstateCard item={item} />
               </CarouselItem>
             ))}
           </CarouselContent>

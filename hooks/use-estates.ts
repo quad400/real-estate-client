@@ -9,6 +9,7 @@ export const useEstatesPages = (estateId?: string) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(false);
+  const [estate, setEstate] = useState<IEstate>();
 
   const getEstates = async (page: number) => {
     console.log(page);
@@ -18,7 +19,7 @@ export const useEstatesPages = (estateId?: string) => {
         page: page,
       },
     });
-    
+
     try {
       setLoading(true);
       const res = await get(url);
@@ -60,6 +61,7 @@ export const useEstatesPages = (estateId?: string) => {
   const getEstate = async (estateId: string) => {
     try {
       setLoading(true);
+
       const res = await get(`estates/${estateId}`);
       return res.data;
     } catch (error: any) {
@@ -72,11 +74,13 @@ export const useEstatesPages = (estateId?: string) => {
   return {
     estates,
     setEstates,
+    estate,
+    setEstate,
     loadNext,
     loadPrev,
     loading,
     getEstate,
     hasNextPage,
-    hasPrevPage
+    hasPrevPage,
   };
 };
