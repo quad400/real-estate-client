@@ -67,7 +67,7 @@ const EstateId = ({ estateId }: { estateId: string }) => {
             >
               <CarouselContent className="w-full">
                 {estate?.images.map((image, index) => (
-                  <CarouselItem className="w-full">
+                  <CarouselItem key={index} className="w-full">
                     <div className="relative w-full h-[300px] md:h-[500px] lg:[600px]">
                       <Image
                         src={image}

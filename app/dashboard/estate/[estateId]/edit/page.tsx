@@ -61,7 +61,7 @@ const Page = ({ params }: { params: { estateId: string } }) => {
   useEffect(() => {
     if (estate) {
       form.setValue("title", estate.title);
-      // @ts-ignore
+      // @ts-expect-error
       form.setValue("images", estate.images);
       form.setValue("location", estate.location);
       form.setValue("category", estate.category);
