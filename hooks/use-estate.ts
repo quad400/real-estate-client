@@ -13,11 +13,11 @@ export const useEstates = (estateId?: string) => {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const getEstates = async (page: number) => {
-    console.log(page);
     const url = qs.stringifyUrl({
       url: `estates/user/my-estates`,
       query: {
         page: page,
+        limit: 10
       },
     });
     

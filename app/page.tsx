@@ -194,7 +194,7 @@ export default function Home() {
       </div>
 
       {estates.length > 0 && (
-        <div className="mt-4 mb-8 w-full justify-center items-center flex">
+        <div className="mt-8 mb-8 w-full justify-center items-center flex">
           <Pagination>
             <PaginationContent className="max-w-2xl flex justify-between items-center space-x-8">
               <PaginationItem>

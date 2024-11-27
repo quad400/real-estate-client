@@ -17,6 +17,7 @@ export const useEstatesPages = (estateId?: string) => {
       url: `estates`,
       query: {
         page: page,
+        limit: 10
       },
     });
 
