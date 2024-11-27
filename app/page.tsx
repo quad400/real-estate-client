@@ -43,7 +43,7 @@ export default function Home() {
           className="w-full"
           plugins={[
             Autoplay({
-              delay: 7000,
+              delay: 5000,
             }),
           ]}
         >
@@ -104,7 +104,7 @@ export default function Home() {
                     </h3>
                     <div className="flex justify-center items-center space-x-1">
                       <span className="text-base sm:text-lg md:text-2xl font-medium text-neutral-800">
-                        {house.ratings}
+                        {parseFloat(house.ratings.toFixed(1))}
                       </span>
                       <Star
                         className="text-[#f2dd1d] h-7 w-7"

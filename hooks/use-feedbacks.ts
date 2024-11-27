@@ -22,6 +22,7 @@ export const useFeedbacks = (estateId: string) => {
     try {
       setLoading(true);
       const res = await get(url);
+      console.log(res)
         setTotalPages(res.data.totalPages);
         setCurrentPage(res.data.currentPage);
         setFeedbacks(res.data.items);
@@ -33,7 +34,7 @@ export const useFeedbacks = (estateId: string) => {
     }
   }, [feedbacks]);
 
-  
+  console.log("FEEDBACK ",feedbacks)
   useEffect(() => {
     if (estateId) {
       getFeedbacks(1);

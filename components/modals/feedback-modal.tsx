@@ -66,8 +66,8 @@ const FeedbackModal = () => {
     try {
       await newFeedback(data?.data, values)
       form.reset();
-      // router.refresh();
       handleClose();
+      toast.success("Feedback Added Successfully")
     } catch (error: any) {
       console.log(error.message);
       console.log(error.response);

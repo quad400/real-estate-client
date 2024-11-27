@@ -35,7 +35,7 @@ const EstateCard = ({ item }: { item: IEstate }) => {
           </h4>
           <div className="flex space-x-1 justify-center items-center">
             <span className="text-sm text-neutral-800 font-medium">
-              {item.ratings}
+              {parseFloat(item.ratings.toFixed(1))}
             </span>
 
             <Star
